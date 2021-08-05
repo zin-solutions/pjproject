@@ -938,22 +938,6 @@ PJ_DEF(pj_status_t) pjsua_call_make_call(pjsua_acc_id acc_id,
 	}
     }
 
-	//ADD OWN CALL_ID
-	 pjsip_hdr * hdr = msg_data->hdr_list.next;
-	 pj_str_t str = pj_str(ZCID);
-	 while (hdr != &msg_data->hdr_list){
-		 if (hdr && pj_strstr (&hdr->name, &str)){
-			
-			pjsip_generic_string_hdr *shdr = (pjsip_generic_string_hdr*) hdr;
-			// pj_strdup2(dlg->pool, &dlg->call_id->id, &shdr->hvalue);	 
-			dlg->call_id->id = shdr->hvalue;
-			//  PJ_LOG(5,(THIS_FILE, "HEADER Name : %s = %s", shdr->name.ptr, shdr->hvalue.ptr));
-
-			pj_list_erase (hdr);
-			break;
-		 }
-		 hdr = hdr->next;
-	 }	 
 
     /* Create outgoing dialog: */
     status = pjsip_dlg_create_uac( pjsip_ua_instance(),
@@ -966,6 +950,27 @@ PJ_DEF(pj_status_t) pjsua_call_make_call(pjsua_acc_id acc_id,
 	pjsua_perror(THIS_FILE, "Dialog creation failed", status);
 	goto on_error;
     }
+
+
+	//ADD OWN CALL_ID
+	 pjsip_hdr * hdr = msg_data->hdr_list.next;
+	 pj_str_t str = pj_str(ZCID);
+	 while (hdr && hdr != &msg_data->hdr_list){
+		PJ_LOG(5,(THIS_FILE, "HEADER Name : %s ", hdr->name));
+		 if (hdr && pj_strstr (&hdr->name, &str)){
+			
+			pjsip_generic_string_hdr *shdr = (pjsip_generic_string_hdr*) hdr;	
+			// pj_strdup(dlg->pool, &dlg->call_id->id, &shdr->hvalue);	 
+			// pj_strcpy (&dlg->call_id->id, &shdr->hvalue);
+		 	dlg->call_id->id = shdr->hvalue;
+			PJ_LOG(5,(THIS_FILE, "HEADER Name : %s = %s", shdr->name.ptr, shdr->hvalue.ptr));
+
+			pj_list_erase (hdr);
+			break;
+		 }
+
+		 hdr = hdr->next;
+	 }	 
 
     /* Increment the dialog's lock otherwise when invite session creation
      * fails the dialog will be destroyed prematurely.
