@@ -23,6 +23,8 @@
 
 #define THIS_FILE		"pjsua_call.c"
 
+#define ZCID	"z-cid"
+
 
 /* Retry interval of sending re-INVITE for locking a codec when remote
  * SDP answer contains multiple codec, in milliseconds.
@@ -935,6 +937,23 @@ PJ_DEF(pj_status_t) pjsua_call_make_call(pjsua_acc_id acc_id,
 	    goto on_error;
 	}
     }
+
+	//ADD OWN CALL_ID
+	 pjsip_hdr * hdr = msg_data->hdr_list.next;
+	 pj_str_t str = pj_str(ZCID);
+	 while (hdr != &msg_data->hdr_list){
+		 if (hdr && pj_strstr (&hdr->name, &str)){
+			
+			pjsip_generic_string_hdr *shdr = (pjsip_generic_string_hdr*) hdr;
+			// pj_strdup2(dlg->pool, &dlg->call_id->id, &shdr->hvalue);	 
+			dlg->call_id->id = shdr->hvalue;
+			//  PJ_LOG(5,(THIS_FILE, "HEADER Name : %s = %s", shdr->name.ptr, shdr->hvalue.ptr));
+
+			pj_list_erase (hdr);
+			break;
+		 }
+		 hdr = hdr->next;
+	 }	 
 
     /* Create outgoing dialog: */
     status = pjsip_dlg_create_uac( pjsip_ua_instance(),
