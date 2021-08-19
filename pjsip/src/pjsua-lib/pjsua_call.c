@@ -953,6 +953,7 @@ PJ_DEF(pj_status_t) pjsua_call_make_call(pjsua_acc_id acc_id,
 
 
 	//ADD OWN CALL_ID
+	if (msg_data){
 	 pjsip_hdr * hdr = msg_data->hdr_list.next;
 	 pj_str_t str = pj_str(ZCID);
 	 while (hdr && hdr != &msg_data->hdr_list){
@@ -971,6 +972,7 @@ PJ_DEF(pj_status_t) pjsua_call_make_call(pjsua_acc_id acc_id,
 
 		 hdr = hdr->next;
 	 }	 
+	}
 
     /* Increment the dialog's lock otherwise when invite session creation
      * fails the dialog will be destroyed prematurely.
